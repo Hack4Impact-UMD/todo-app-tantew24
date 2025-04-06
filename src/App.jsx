@@ -43,8 +43,19 @@ function App() {
     ELSE do nothing
   */
   const addTask = () => {
-    // START EDITING
-    // END EDITING
+    if(title!=""){
+      const newTask = {
+        id: uuidv4(),
+        title: title,
+        description: description,
+        completed: false, // Task should start as NOT COMPLETED
+        dueDate: dueDate //in plain js so you don't need the {} to build the object
+      };
+      setTasks((oldArr)=>[...oldArr, newTask]);
+      setTitle("");
+      setDescription("");
+      setDueDate("");
+    }
   };
 
   /*
@@ -60,8 +71,7 @@ function App() {
     HINT HINT NUDGE NUDGE: I'm getting some Week 4 HW flashbacks...are you?
   */
   const toggleCompletion = (id) => {
-    // START EDITING
-    // END EDITING
+    setTasks((oldTasks)=> oldTasks.map((item) => item.id==id ? {...item, completed: !item.completed}: item));
   };
   
   /*
@@ -96,8 +106,12 @@ function App() {
     component to the result of calling calculateProgress.
   */
   const calculateProgress = () => {
-    // START EDITING
-    // END EDITING
+    if(tasks.length==0){
+      return 0;
+    }
+    const completedTaskCount = tasks.filter((tasks)=>tasks.completed).length;
+    return (completedTaskCount/tasks.length) * 100;
+
   };
 
   return (
@@ -116,31 +130,40 @@ function App() {
         <TextField
           required
           label="Title"
+          value={title} //in jsx so you use {} to embed js expressions inside jsx attributes
+          onChange={(e)=> setTitle(e.target.value)}
         />
         <TextField
           label="Description"
+          value={description}
+          onChange={(e)=> setDescription(e.target.value)}
         />
         <TextField
           label="Due Date"
           type="date"
           InputLabelProps={{ shrink: true }}
+          value={dueDate}
+          onChange={(e)=> setDueDate(e.target.value)}
         />
-        <Button variant="contained">
+        <Button variant="contained" onClick={addTask}>
           Add Task
         </Button>
       </div>
 
       <FormControlLabel
-        control={<Switch/>}
+        control={
+        <Switch
+          checked={incompleteOnly}/>}
+          onChange={(e) => {
+            setIncompleteOnly(e.target.checked);
+          }}
         label="Incomplete Tasks Only"
-        onChange={() => {
-          setIncompleteOnly(!incompleteOnly);
-        }}
         componentsProps={{ typography: { variant: "p" } }}
       />
       <LinearProgress
         variant="determinate"
         sx={{ width: "100%", height: 10, borderRadius: 5, marginBottom: 2 }}
+        value={calculateProgress()}
       />
       <TaskTable 
         tasks={incompleteOnly ? tasks.filter((task) => !task.completed) : tasks } 
